@@ -5,8 +5,7 @@ import imutils
 import os
 
 print('\nFetching Images...')
-folder_path = 'Intersection'
-###EITHER PUT THE FULL PATH OF THE IMAGES FOLDER, OR OPEN THE WHOLE PROGRAM FOLDER IN VS CODE.
+folder_path = 'images/Intersection'
 images_path = glob.glob(os.path.join(folder_path,'*.jpg')) 
 images = []
 for image in images_path:
@@ -21,26 +20,21 @@ if images:
     error, stitched_image = imageStitcher.stitch(images=images)
 
     if not error:   
-        ''' RAW STITCHED IMAGE '''
+        # RAW STITCHED IMAGE
         cv2.imwrite('RawStitchedImage.png', stitched_image)
         print('>>Stitched Image Created!\n')
         
-        
-        ''' PROCESSING THE OUTPUT '''
+        # PROCESSING THE OUTPUT
         print('Processing into Panorama...')
         stitched_image = cv2.copyMakeBorder(stitched_image, 10, 10, 10, 10, cv2.BORDER_CONSTANT, (0,0,0))
         gray = cv2.cvtColor(stitched_image, cv2.COLOR_BGR2GRAY)
         thresh_img = cv2.threshold(gray, 0, 255 , cv2.THRESH_BINARY)[1]
-
         contours = cv2.findContours(thresh_img.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
         contours = imutils.grab_contours(contours)
         areaOI = max(contours, key=cv2.contourArea)
-
         mask = np.zeros(thresh_img.shape, dtype="uint8")
         x, y, w, h = cv2.boundingRect(areaOI)
         cv2.rectangle(mask, (x,y), (x + w, y + h), 255, -1)
-
         minRectangle = mask.copy()
         sub = mask.copy()
 
@@ -53,10 +47,9 @@ if images:
         areaOI = max(contours, key=cv2.contourArea)
 
         x, y, w, h = cv2.boundingRect(areaOI)
-
         stitched_image = stitched_image[y:y + h, x:x + w]
         
-        ''' PROCESSED IMAGE '''
+        # PROCESSED IMAGE
         cv2.imwrite("ProcessedStitchedImage.png", stitched_image)
         print('>>Panorama Created!\n')
         
